@@ -157,8 +157,8 @@ class ReprTests(unittest.TestCase):
         actual = repr(A())
         extracted = self._extract_fields_to_dict(actual)
         self.assertEquals(len(extracted.keys()), 2)
-        self.assertEquals(extracted[u"name"], u"Python")
-        self.assertEquals(extracted[u"language"], u"Peter")
+        self.assertEquals(extracted[u"name"], u"'Python'")
+        self.assertEquals(extracted[u"language"], u"'Peter'")
 
     def test_with_method(self):
         @gen_repr()
@@ -172,6 +172,14 @@ class ReprTests(unittest.TestCase):
 
         actual = repr(A())
         self.assertEquals(actual, u"<A (some_field=None)>")
+
+    def test_without_fields(self):
+        @gen_repr()
+        class A(object):
+            pass
+
+        actual = repr(A())
+        self.assertEquals(actual, u"<A ()>")
 
 
 if __name__ == "__main__":
