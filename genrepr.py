@@ -8,6 +8,7 @@ __author__ = u"Peter Morawski"
 __version__ = u"0.1.0"
 
 _PY2 = 2
+GEN_REPR_ID = "__gen_repr"
 
 
 def gen_repr():
@@ -15,9 +16,12 @@ def gen_repr():
     """
 
     def decorator(target_cls):
+        if not hasattr(target_cls, GEN_REPR_ID):
+            setattr(target_cls, GEN_REPR_ID, True)
+
         class GenReprWrapper(target_cls):
             def __repr__(self):
-                return _GenReprUtils.get_object_repr(self)
+                return _GenReprUtils.get_object_repr(target_cls, self)
 
         return GenReprWrapper
 
@@ -26,10 +30,10 @@ def gen_repr():
 
 class _GenReprUtils(object):
     @classmethod
-    def get_object_repr(cls, obj):
+    def get_object_repr(cls, target_cls, instance):
         return u"<{class_name} ({fields})>".format(
-            class_name=obj.__name__,
-            fields=u", ".join(_GenReprUtils.extract_public_field_reprs(obj)),
+            class_name=target_cls.__name__,
+            fields=u", ".join(_GenReprUtils.extract_public_field_reprs(instance)),
         )
 
     @classmethod
@@ -82,8 +86,18 @@ class _GenReprUtils(object):
                 u", ".join(cls.serialize_value(item) for item in value)
             )
 
-        if inspect.isclass(value):
-            return
+        # check if the value is a class instance
+        if (
+            hasattr(value, "__class__")
+            and hasattr(value.__class__, "__name__")
+            and hasattr(value, "__dict__")
+            and inspect.isclass(value.__class__)
+        ):
+            # check if the object is annotated with gen_repr
+            if hasattr(value.__class__, "__gen_repr"):
+                return repr(value)
+            else:
+                return cls.get_object_repr(value.__class__, value)
 
         return u"{}".format(value)
 
