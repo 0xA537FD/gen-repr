@@ -4,9 +4,9 @@ import re
 import unittest
 
 from genrepr import gen_repr
-from collections import OrderedDict
 
 _extract_fields_pattern = r"([a-z_A-Z]*=[\"'a-zA-Z0-9]*)"
+_extract_dict_items_pattern = r"(['\"\-_0-9a-zA-Z\.]*: ['\"\-_0-9a-zA-Z\.]*)+"
 
 
 class ReprTests(unittest.TestCase):
@@ -68,12 +68,24 @@ class ReprTests(unittest.TestCase):
         @gen_repr()
         class A(object):
             def __init__(self):
-                self.people = OrderedDict({u"Peter": 12, u"Warren": 6, u"Glen": 36.7})
+                self.people = {u"Peter": 12, u"Warren": 6, u"Glen": 36.7}
 
         actual = repr(A())
-        self.assertEquals(
-            actual, u"<A (people={'Peter': 12, 'Warren': 6, 'Glen': 36.7})>"
-        )
+        items = self._extract_dict_from_repr(actual)
+        self.assertEquals(len(items.keys()), 3)
+        self.assertEquals(items[u"Peter"], u"12")
+        self.assertEquals(items[u"Warren"], u"6")
+        self.assertEquals(items[u"Glen"], u"36.7")
+
+    # noinspection PyMethodMayBeStatic
+    def _extract_dict_from_repr(self, target_repr):
+        raw_items = re.findall(_extract_dict_items_pattern, target_repr)
+        result = {}
+        for item in raw_items:
+            split = item.split(u":")
+            result[split[0].strip().replace(u"'", u"")] = split[1].strip()
+
+        return result
 
     def test_with_other_object_without_annotation(self):
         class A(object):

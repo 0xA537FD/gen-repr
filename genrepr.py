@@ -88,13 +88,13 @@ class _GenReprUtils(object):
 
         # check if the value is a class instance
         if (
-            hasattr(value, "__class__")
-            and hasattr(value.__class__, "__name__")
-            and hasattr(value, "__dict__")
+            hasattr(value, u"__class__")
+            and hasattr(value.__class__, u"__name__")
+            and hasattr(value, u"__dict__")
             and inspect.isclass(value.__class__)
         ):
             # check if the object is annotated with gen_repr
-            if hasattr(value.__class__, "__gen_repr"):
+            if hasattr(value.__class__, u"__gen_repr"):
                 return repr(value)
             else:
                 return cls.get_object_repr(value.__class__, value)
