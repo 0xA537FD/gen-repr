@@ -13,7 +13,16 @@ GEN_REPR_ID = u"__gen_repr"
 
 def gen_repr():
     """
+    Annotate a class of which the __repr__ method should be overridden.
+    The generated __repr__ will contain all public fields of the class.
 
+    >>> @gen_repr()
+    >>> class Example(object):
+    >>>     def __init__(self):
+    >>>         self.name = u"Peter"
+
+    >>> example = Example()
+    >>> repr(example) # "<Example (name='Peter')>"
     """
 
     def decorator(target_cls):
