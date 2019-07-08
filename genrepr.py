@@ -8,22 +8,24 @@ __author__ = u"Peter Morawski"
 __version__ = u"0.1.0"
 
 _PY2 = 2
-GEN_REPR_ID = "__gen_repr"
+GEN_REPR_ID = u"__gen_repr"
 
 
 def gen_repr():
     """
+
     """
 
     def decorator(target_cls):
         if not hasattr(target_cls, GEN_REPR_ID):
             setattr(target_cls, GEN_REPR_ID, True)
 
-        class GenReprWrapper(target_cls):
-            def __repr__(self):
-                return _GenReprUtils.get_object_repr(target_cls, self)
+        def new_repr(instance):
+            return _GenReprUtils.get_object_repr(target_cls, instance)
 
-        return GenReprWrapper
+        target_cls.__repr__ = new_repr
+
+        return target_cls
 
     return decorator
 
