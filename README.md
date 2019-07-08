@@ -1,4 +1,4 @@
-# gen-repr
+# gen-repr [![Build Status](https://travis-ci.org/Peter-Morawski/gen-repr.svg?branch=master)](https://travis-ci.org/Peter-Morawski/gen-repr)
 
 Lightweight python library without any dependencies to automatically generate
 the ``__repr__`` method for any class.
