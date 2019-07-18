@@ -193,6 +193,106 @@ class ReprTests(unittest.TestCase):
         actual = repr(A())
         self.assertEquals(actual, u"<A ()>")
 
+    def test_with_properties(self):
+        @gen_repr()
+        class A(object):
+            def __init__(self):
+                self._some_field = u"pete"
+
+            @property
+            def some_field(self):
+                return self._some_field
+
+            @some_field.setter
+            def some_field(self, value):
+                self._some_field = value
+
+        actual = repr(A())
+        self.assertEquals(actual, u"<A (some_field='pete')>")
+
+    def test_with_readonly_properties(self):
+        @gen_repr()
+        class A(object):
+            def __init__(self):
+                self._age = 12
+
+            @property
+            def age(self):
+                return self._age
+
+        actual = repr(A())
+        self.assertEquals(actual, u"<A (age=12)>")
+
+    def test_dont_include_properties(self):
+        @gen_repr(include_properties=False)
+        class A(object):
+            def __init__(self):
+                self._some_prop = u"nope"
+                self.street = u"s"
+
+            @property
+            def some_prop(self):
+                return self._some_prop
+
+            @some_prop.setter
+            def some_prop(self, value):
+                self._some_prop = value
+
+        actual = repr(A())
+        self.assertEquals(actual, u"<A (street='s')>")
+
+    def test_dont_include_with_readonly_properties(self):
+        @gen_repr(include_properties=False)
+        class B(object):
+            def __init__(self):
+                self._some_prop = u"this should not happen"
+                self.lets_try = True
+
+            @property
+            def some_prop(self):
+                return self._some_prop
+
+        actual = repr(B())
+        self.assertEquals(actual, u"<B (lets_try=True)>")
+
+    def test_with_properties_and_public_fields(self):
+        @gen_repr()
+        class A(object):
+            def __init__(self):
+                self._prop = 9
+                self.name = False
+
+            @property
+            def prop(self):
+                return self._prop
+
+            @prop.setter
+            def prop(self, value):
+                self._prop = value
+
+        actual = repr(A())
+        extracted = self._extract_fields_to_dict(actual)
+        self.assertEquals(len(extracted.keys()), 2)
+        self.assertEquals(extracted[u"prop"], u"9")
+        self.assertEquals(extracted[u"name"], u"False")
+
+    def test_with_readonly_properties_and_public_fields(self):
+        @gen_repr()
+        class B(object):
+            def __init__(self):
+                self._prop = 1337
+                self.location = u"localhost"
+
+            @property
+            def prop(self):
+                return self._prop
+
+        actual = repr(B())
+        extracted = self._extract_fields_to_dict(actual)
+        self.assertEquals(len(extracted.keys()), 2)
+        self.assertEquals(extracted[u"prop"], u"1337")
+        self.assertEquals(extracted[u"location"], u"'localhost'")
+
 
 if __name__ == "__main__":
     unittest.main()

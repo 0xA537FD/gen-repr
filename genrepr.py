@@ -11,7 +11,7 @@ _PY2 = 2
 GEN_REPR_ID = u"__gen_repr"
 
 
-def gen_repr():
+def gen_repr(include_properties=True):
     """
     Annotate a class of which the __repr__ method should be overridden.
     The generated __repr__ will contain all public fields of the class.
@@ -23,6 +23,8 @@ def gen_repr():
 
     >>> example = Example()
     >>> repr(example) # "<Example (name='Peter')>"
+
+    :param include_properties: Whether the properties of the class should be included in the repr. (default: True)
     """
 
     def decorator(target_cls):
@@ -30,7 +32,9 @@ def gen_repr():
             setattr(target_cls, GEN_REPR_ID, True)
 
         def new_repr(instance):
-            return _GenReprUtils.get_object_repr(target_cls, instance)
+            return _GenReprUtils.get_object_repr(
+                target_cls, instance, properties=include_properties
+            )
 
         target_cls.__repr__ = new_repr
 
@@ -41,7 +45,7 @@ def gen_repr():
 
 class _GenReprUtils(object):
     @classmethod
-    def get_object_repr(cls, target_cls, instance):
+    def get_object_repr(cls, target_cls, instance, **kwargs):
         return u"<{class_name} ({fields})>".format(
             class_name=target_cls.__name__,
             fields=u", ".join(_GenReprUtils.extract_public_field_reprs(instance)),

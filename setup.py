@@ -18,7 +18,7 @@ setuptools.setup(
     test_suite="tests",
     py_modules=["genrepr"],
     license="MIT License",
-    classifier=(
+    classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -38,5 +38,5 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Widget Sets",
         "Topic :: Utilities",
-    ),
+    ],
 )
