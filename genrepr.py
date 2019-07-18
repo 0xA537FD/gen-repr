@@ -5,7 +5,7 @@ import inspect
 
 
 __author__ = u"Peter Morawski"
-__version__ = u"0.1.0"
+__version__ = u"0.2.0"
 
 _PY2 = 2
 GEN_REPR_ID = u"__gen_repr"
@@ -44,11 +44,17 @@ def gen_repr(include_properties=True):
 
 
 class _GenReprUtils(object):
+    REPR_FORMAT = u"{}={}"
+
     @classmethod
     def get_object_repr(cls, target_cls, instance, **kwargs):
+        properties = kwargs.get("properties", False)
+        fields = _GenReprUtils.extract_public_field_reprs(instance)
+        if properties:
+            fields.extend(_GenReprUtils.extract_property_reprs(instance))
+
         return u"<{class_name} ({fields})>".format(
-            class_name=target_cls.__name__,
-            fields=u", ".join(_GenReprUtils.extract_public_field_reprs(instance)),
+            class_name=target_cls.__name__, fields=u", ".join(fields)
         )
 
     @classmethod
@@ -71,7 +77,28 @@ class _GenReprUtils(object):
 
         result = []
         for key, value in public_fields.items():
-            result.append(u"{}={}".format(key, cls.serialize_value(value)))
+            result.append(cls.REPR_FORMAT.format(key, cls.serialize_value(value)))
+
+        return result
+
+    @classmethod
+    def extract_properties(cls, target):
+        result = {}
+        for member in inspect.getmembers(type(target)):
+            if isinstance(member[1], property):
+                result[member[0]] = member[1].fget(target)
+
+        return result
+
+    @classmethod
+    def extract_property_reprs(cls, target):
+        properties = cls.extract_properties(target)
+        if not properties:
+            return []
+
+        result = []
+        for key, value in properties.items():
+            result.append(cls.REPR_FORMAT.format(key, cls.serialize_value(value)))
 
         return result
 

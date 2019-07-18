@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="gen-repr",
-    version="0.1.0",
+    version="0.2.0",
     author="Peter Morawski",
     author_email="web@peter-morawski.de",
     keywords="make repr auto generate",
