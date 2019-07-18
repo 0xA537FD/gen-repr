@@ -27,10 +27,15 @@ class Person(object):
         self.first_name = u""
         self.age = 0
         self._hair = u"any color you like"
+        self._location = u"localhost"
+        
+    @property
+    def location(self):
+        return self._location
 
 peter = Person()
 peter.first_name = u"Peter"
 peter.age = -1
 
-repr(peter) # result: "<Person (first_name='Peter', age=-1)>:
+repr(peter) # result: "<Person (first_name='Peter', age=-1, location='localhost')>:
 ```
